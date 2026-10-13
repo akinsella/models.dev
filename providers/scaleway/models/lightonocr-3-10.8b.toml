@@ -1,0 +1,29 @@
+# see: https://www.scaleway.com/en/docs/generative-apis/reference-content/supported-models/#lightonocr-3-08b
+# last update: 2026-10-13
+# Scaleway pricing: https://www.scaleway.com/en/pricing/model-as-a-service/ (accessed 2026-10-14)
+# Billed in EUR: €2.20 input / €0.00 output per 1M tokens.
+# Converted at 1 EUR = 1.12 USD on 2026-10-14 (models.dev publishes USD).
+# Reasoning tokens bill as output — the API returns
+# chain-of-thought in `reasoning` and counts it inside completion_tokens.
+
+name = "LightOnOCR 3 - 0.8B"
+description = "LightOnOCR-3-0.8B is the lightest model of LightOn's LightOnOCR-3 family, with the same layout and visual understanding features as its larger siblings."
+release_date = "2026-10-13"
+last_updated = "2026-10-13"
+attachment = true
+reasoning = true
+tool_call = true
+structured_output = true
+open_weights = true
+
+[cost]
+input = 2.464
+output = 0.000
+
+[limit]
+input = 262_144
+output = 16_384
+
+[modalities]
+input = ["text", "image"]
+output = ["text"]
