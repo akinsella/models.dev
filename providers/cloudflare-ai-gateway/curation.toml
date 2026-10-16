@@ -17,11 +17,14 @@
 #   - skip: catalog ids with no lab file, or not reachable via unified billing (BYOK-only).
 # Consumed by: bun run cloudflare-ai-gateway:generate
 
-# Proxied Text-Generation catalog ids with no lab file under models/ (cannot publish yet).
+# Proxied Text-Generation catalog ids with no lab file under models/, or not reachable via
+# unified billing (BYOK-only).
 skip = [
   "google/gemini-3-flash",
   "google/gemini-3.1-pro",
   "xai/grok-4.20-multi-agent-0309",
+  # Inkling has a lab file, but both ids are BYOK-only: unified billing returns code 2047
+  # on /ai/v1/chat/completions and /ai/v1/messages (verified live 2026-10-16).
   "thinkingmachines/inkling-256k",
   "minimax/m2.7",
   "minimax/m3",
@@ -240,6 +243,19 @@ note = [
 ]
 reasoning_options = [{ type = "effort", values = ["low", "high", "max"] }]
 
+# Ember-1 is Fireworks' Kimi K3 derivative, served on the Fireworks route. The catalog
+# schema advertises a generic none|low|medium|high|xhigh|max enum, but Fireworks' K3 tiers
+# promote medium -> high and xhigh -> max, so the distinct levels are none|low|high|max
+# (same as providers/kilo/models/fireworks/ember-1.toml and the deepseek-v4-pro route above).
+# Live CF chat-completions accepts all six and returns reasoning_content (2026-10-16).
+[models."fireworks/ember-1"]
+note = [
+  "Off: reasoning_effort = none; effort: low|high|max (Fireworks route; medium -> high, xhigh -> max).",
+  "Sources: https://docs.fireworks.ai/api-reference/post-chatcompletions ; https://docs.fireworks.ai/guides/reasoning",
+]
+interleaved = { field = "reasoning_content" }
+reasoning_options = [{ type = "effort", values = ["none", "low", "high", "max"] }]
+
 [models."thinkingmachines/inkling"]
 note = [
   "Tinker's Anthropic-compatible route: thinking.type = adaptive|disabled toggles reasoning;",
@@ -247,3 +263,17 @@ note = [
 ]
 reasoning_options = [{ type = "toggle" }, { type = "effort", values = ["low", "medium", "high", "xhigh", "max"] }]
 limit = { output = 65_536 }
+
+# Gemini 4 Argon: Google native thinkingLevel only (low|medium|high, default medium).
+# Thinking cannot be disabled and thinking_budget is deprecated (400 on Gemini 4).
+# Wire is preserved via the Google AI Studio native route through AI Gateway.
+# https://ai.google.dev/gemini-api/docs/thinking
+# https://ai.google.dev/gemini-api/docs/generate-content/thinking
+# https://ai.google.dev/gemini-api/docs/models/gemini-4-argon
+# https://developers.cloudflare.com/ai-gateway/usage/providers/google-ai-studio/
+[models."google/gemini-4-argon"]
+note = [
+  "Effort: generationConfig.thinkingConfig.thinkingLevel = low|medium|high (Google AI Studio native route preserved via AI Gateway; default medium, thinking cannot be disabled).",
+  "Sources: https://ai.google.dev/gemini-api/docs/thinking ; https://ai.google.dev/gemini-api/docs/models/gemini-4-argon ; https://developers.cloudflare.com/ai-gateway/usage/providers/google-ai-studio/",
+]
+reasoning_options = [{ type = "effort", values = ["low", "medium", "high"] }]
