@@ -19,5 +19,5 @@ reasoning = 2.016
 cache_read = 0.134
 
 [limit]
-context = 262_144
+context = 256_000
 output = 32_768
